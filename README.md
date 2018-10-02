@@ -50,3 +50,35 @@ All of the operations are ordered by date, but they can span up to a couple of y
 
 The program prints the result in the console
 Result - calculated commission fee without it's currency
+
+#Example data
+```
+➜  cat input.csv 
+2014-12-31,4,natural,cash_out,1200.00,EUR
+2015-01-01,4,natural,cash_out,1000.00,EUR
+2016-01-05,4,natural,cash_out,1000.00,EUR
+2016-01-05,1,natural,cash_in,200.00,EUR
+2016-01-06,2,legal,cash_out,300.00,EUR
+2016-01-06,1,natural,cash_out,30000,JPY
+2016-01-07,1,natural,cash_out,1000.00,EUR
+2016-01-07,1,natural,cash_out,100.00,USD
+2016-01-10,1,natural,cash_out,100.00,EUR
+2016-01-10,2,legal,cash_in,1000000.00,EUR
+2016-01-10,3,natural,cash_out,1000.00,EUR
+2016-02-15,1,natural,cash_out,300.00,EUR
+2016-02-19,2,natural,cash_out,3000000,JPY
+➜  php script.php input.csv
+0.6
+3
+0
+0.06
+0.9
+0
+0.7
+0.3
+0.3
+5
+0
+0
+8612
+```
