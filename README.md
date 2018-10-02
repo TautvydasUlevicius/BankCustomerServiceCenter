@@ -1,4 +1,7 @@
 # Bank Service Center
+To run this program type in console bin/console app:import-csv-file --location
+"Path to file"
+
 # Situation:
 Customers can come in to the service center and make a money deposit or cash out some
 money. Couple of currencies are supported. And there are certain commissions for certain
