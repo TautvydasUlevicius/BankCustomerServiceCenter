@@ -51,7 +51,8 @@ All of the operations are ordered by date, but they can span up to a couple of y
 The program prints the result in the console
 Result - calculated commission fee without it's currency
 
-#Example data
+# Example data
+
 ```
 ➜  cat input.csv 
 2014-12-31,4,natural,cash_out,1200.00,EUR
