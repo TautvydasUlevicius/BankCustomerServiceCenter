@@ -1,39 +1,34 @@
 # Bank Service Center
-To run this program type in console bin/console app:import-csv-file --location
-"Path/to/file"
+To run this program type in console bin/console app:import-csv-file --location "Path/to/file"
 
 # Situation:
-Customers can come in to the service center and make a money deposit or cash out some
-money. Couple of currencies are supported. And there are certain commissions for certain
-operations.
-# Commissions
-# Money deposit
+Customers can come in to the service center and make a deposit or cash out. Several currencies are supported. There are also certain commissions, both for deposits and withdrawals.
 
-Commission - 0.03% from the operation amount, but the commission can't be more than
-5.00 EUR
+# Commissions
+
+# Money deposit
+Commission fee - 0.3% of the amount, but not more than 5.00 EUR
+
 # Cash withdrawal
-The commission fee is different for natural and legal people
+Different commissions apply to natural and legal persons.
 
 # Commission for individual people
-Regular commission - 0.3% from the operation amount.
-Per week you can withdrawal 1000.00 EUR for free.
-If the operation amount is more than the free amount the commission fee is calculated
-from the exceeded amount.
-This discount only applies for the first 3 operations that same week. If it's the fourth,
-fifth and etc. operation the same week, the commission fee is calculated normally without
-any discounts. The 1000 EUR discount only applies for the first 3 operations per week
+Ordinary commission - 0.3% of the amount.
+1000.00 EUR per week (Monday to Sunday) can be taken out for free.
+If the amount is exceeded - the commission is calculated based on the amount exceeded (i.e., EUR 1000 is still valid without commission).
+This discount only applies to the first 3 withdrawal operations per week - if 4 or more widrawals are conducted, the commission for these operations is calculated as usual - the rule relating to the 1000 EUR is only valid for the first three withdrawals.
 
 # Commission for legal people
-Commission fee is 0.3% from the operation amount, but it can't be less than 0.50 EUR.
+Commission fee - 0,3% of the amount, but not less than 0,50 EUR.
 
 # Commission fee currency
-For example: if the operation is made in USD the commission fee must be in USD
+The commission fee is always calculated in the currency in which the transaction is performed (for example, if the transaction is performed in USD, the commission  is calculated in USD currency).
 
 # Rounding up
-When the commission fee is calculated, it has to be rounded up to the bigger side.
-For example, if the commission fee is 0.023 EUR it has to be 0.03 EUR.
+After calculating the commission, it is rounded up to the nearest half of the smallest currency unit
+(e.g if the commission fee is 0.023 EUR we round it up to be 0.03 EUR.)
 
-We do the rounding up after the commission fee is calculated.
+Rounding up is done after the conversion.
 
 # Supported currencies
 Currently 3 currencies are supported : EUR, USD and JPY
