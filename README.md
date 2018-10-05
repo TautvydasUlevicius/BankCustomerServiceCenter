@@ -7,7 +7,7 @@ Customers can come in to the service center and make a deposit or cash out. Seve
 # Commissions
 
 # Money deposit
-Commission fee - 0.3% of the amount, but not more than 5.00 EUR
+Commission fee - 0.03% of the amount, but not more than 5.00 EUR
 
 # Cash withdrawal
 Different commissions apply to natural and legal persons.
