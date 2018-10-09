@@ -2,7 +2,7 @@ parameters:
 
   available_currencies:
     EURO: EUR
-    UNITED_STATES_DOLAR: USD
+    UNITED_STATES_DOLLAR: USD
     JAPANESE_YEN: JPY
 
   conversion_courses:

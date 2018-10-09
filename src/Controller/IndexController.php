@@ -29,9 +29,9 @@ class IndexController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(string $fileLocation)
+    public function index(string $pathToFile)
     {
-        $operations = $this->csvFileController->getOperationsFromFile($fileLocation);
+        $operations = $this->csvFileController->getOperationsFromFile($pathToFile);
 
         for ($i = 0; $i < count($operations); $i++) {
             $operationWeekNumber = (new DateTime($operations[$i][0]))->format('oW');
