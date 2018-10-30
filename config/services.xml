@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="locale">en</parameter>
+    </parameters>
+    <services>
+        <defaults autowire="false" autoconfigure="false" public="true" />
+        <prototype namespace="App\" resource="../src/*" exclude="../src/{Entity,Migrations,Tests}" />
+        <service id="App\Command\CreateOperationsCommand">
+            <tag name="console.command" command="app:calculate-commissions" />
+            <argument type="service" id="App\Util\DateChecker" />
+            <argument type="service" id="App\Util\FileValidator" />
+            <argument type="service" id="App\Util\AmountRoundUp" />
+            <argument type="service" id="App\Service\CsvFileManager" />
+            <argument type="service" id="App\Service\CurrencyManager" />
+            <argument type="service" id="App\Service\OperationManager" />
+            <argument type="service" id="App\Service\CommissionManager" />
+            <argument type="service" id="App\Service\CalculatedCommissionManager" />
+        </service>
+        <service id="App\Service\CommissionManager" />
+        <service id="App\Service\CurrencyManager" />
+        <service id="App\Service\OperationManager">
+            <argument type="service" id="App\Entity\Operation" />
+        </service>
+        <service id="App\Service\CalculatedCommissionManager" />
+        <service id="App\Service\CsvFileManager" />
+        <service id="App\Util\FileValidator" />
+        <service id="App\Util\DateChecker" />
+        <service id="App\Util\AmountRoundUp" />
+        <service id="App\Entity\Operation" />
+    </services>
+</container>

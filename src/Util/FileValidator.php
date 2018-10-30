@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Util;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
