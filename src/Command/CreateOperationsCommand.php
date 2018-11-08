@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Operation;
-use App\Service\CalculatedCommissionManager;
 use App\Service\CommissionManager;
 use App\Service\CsvFileManager;
 use App\Service\CurrencyManager;
@@ -29,7 +28,6 @@ class CreateOperationsCommand extends ContainerAwareCommand
     private $currencyManager;
     private $operationManager;
     private $commissionManager;
-    private $calculatedCommissionManager;
 
     public function __construct(
         DateChecker $dateChecker,
@@ -38,8 +36,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
         CsvFileManager $csvFileManager,
         CurrencyManager $currencyManager,
         OperationManager $operationManager,
-        CommissionManager $commissionManager,
-        CalculatedCommissionManager $calculatedCommissionManager
+        CommissionManager $commissionManager
     ) {
         parent::__construct();
 
@@ -51,7 +48,6 @@ class CreateOperationsCommand extends ContainerAwareCommand
         $this->currencyManager = $currencyManager;
         $this->operationManager = $operationManager;
         $this->commissionManager = $commissionManager;
-        $this->calculatedCommissionManager = $calculatedCommissionManager;
 
         $this->dotenv->load('../BankCustomerServiceCenter/config/parameters.env');
     }
@@ -124,7 +120,8 @@ class CreateOperationsCommand extends ContainerAwareCommand
                 $operation->getCurrency()
             );
             $commission = $this->amountRoundUp->roundUpAmount($commission, $operation->getCurrency());
-            $this->calculatedCommissionManager->printOutCalculatedCommission($commission);
+
+            $output->writeln($commission);
         }
     }
 

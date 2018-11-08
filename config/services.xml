@@ -18,14 +18,10 @@
             <argument type="service" id="App\Service\CurrencyManager" />
             <argument type="service" id="App\Service\OperationManager" />
             <argument type="service" id="App\Service\CommissionManager" />
-            <argument type="service" id="App\Service\CalculatedCommissionManager" />
         </service>
         <service id="App\Service\CommissionManager" />
         <service id="App\Service\CurrencyManager" />
-        <service id="App\Service\OperationManager">
-            <argument type="service" id="App\Entity\Operation" />
-        </service>
-        <service id="App\Service\CalculatedCommissionManager" />
+        <service id="App\Service\OperationManager" />
         <service id="App\Service\CsvFileManager" />
         <service id="App\Util\FileValidator" />
         <service id="App\Util\DateChecker" />

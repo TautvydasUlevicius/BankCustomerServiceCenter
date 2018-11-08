@@ -7,6 +7,7 @@
         "ext-http": "*",
         "ext-iconv": "*",
         "doctrine/annotations": "^1.6",
+        "evp/money": "^2.0",
         "sensio/framework-extra-bundle": "^5.2",
         "symfony/asset": "*",
         "symfony/console": "*",

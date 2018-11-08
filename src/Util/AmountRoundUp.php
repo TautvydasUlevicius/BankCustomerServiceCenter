@@ -3,19 +3,9 @@ declare(strict_types=1);
 
 namespace App\Util;
 
-use Symfony\Component\Dotenv\Dotenv;
-
 class AmountRoundUp
 {
     const JAPANESE_YEN = 'JPY';
-
-    private $dotenv;
-
-    public function __construct()
-    {
-        $this->dotenv = new Dotenv();
-        $this->dotenv->load('../BankCustomerServiceCenter/config/parameters.env');
-    }
 
     public function roundUpAmount(float $amount, string $currency): float
     {
