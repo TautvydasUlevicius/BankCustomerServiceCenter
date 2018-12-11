@@ -3,9 +3,36 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Discount;
+
 class CommissionManager
 {
-    public function moneyDeposit(float $amount): float
+    public function calculateCommission(
+        array $arrayOfOperationObjects,
+        array $discountInformation
+    ) {
+        $arrayOfCalculatedCommissions = [];
+
+        for ($i = 0; $i < count($arrayOfOperationObjects); $i++) {
+            if ($arrayOfOperationObjects[$i]->getOperationType() === 'cash_in') {
+                $arrayOfCalculatedCommissions[$i] = $this->moneyDeposit($arrayOfOperationObjects[$i]->getAmount());
+            } elseif ($arrayOfOperationObjects[$i]->getOperationType() === 'cash_out' &&
+                $arrayOfOperationObjects[$i]->getUserType() === 'legal') {
+                $arrayOfCalculatedCommissions[$i] = $this->cashClearingForLegalPeople(
+                    $arrayOfOperationObjects[$i]->getAmount()
+                );
+            } else {
+                $arrayOfCalculatedCommissions[$i] = $this->cashClearingForNaturalPeople(
+                    $arrayOfOperationObjects[$i]->getAmount(),
+                    $discountInformation[$i]
+                );
+            }
+        }
+
+        return $arrayOfCalculatedCommissions;
+    }
+
+    protected function moneyDeposit(float $amount): float
     {
         $commissionFee = (($amount * getenv('MONEY_DEPOSIT_PERCENT')) / 100);
 
@@ -16,7 +43,7 @@ class CommissionManager
         return $commissionFee;
     }
 
-    public function cashClearingForLegalPeople(float $amount): float
+    protected function cashClearingForLegalPeople(float $amount): float
     {
         $commissionFee = ($amount * getenv('CASH_CLEARING_PERCENT')) / 100;
 
@@ -27,24 +54,23 @@ class CommissionManager
         return $commissionFee;
     }
 
-    public function cashClearingForNaturalPeople(
+    protected function cashClearingForNaturalPeople(
         float $amount,
-        int $time,
-        float $previousOperationSum
+        Discount $discountInformation
     ): float {
 
-        if ($time > getenv('CASH_CLEARING_AMOUNT_OF_TIMES_FREE_FOR_NATURAL_PEOPLE')) {
+        if ($discountInformation->getOperationNumber() > getenv('CASH_CLEARING_AMOUNT_OF_TIMES_FREE')) {
             $commissionFee = ($amount * getenv('CASH_CLEARING_PERCENT')) / 100;
         } else {
-            if ($previousOperationSum > getenv('CASH_CLEARING_FREE_AMOUNT')) {
+            if ($discountInformation->getDiscountAmountLeft() === 0) {
                 $commissionFee = ($amount * getenv('CASH_CLEARING_PERCENT')) / 100;
-            } elseif ($previousOperationSum < getenv('CASH_CLEARING_FREE_AMOUNT') &&
-                ($amount + $previousOperationSum) < getenv('CASH_CLEARING_FREE_AMOUNT')) {
+            } elseif ($discountInformation->getDiscountAmountLeft() > 0 &&
+                $discountInformation->getDiscountAmountLeft() > $amount) {
                 $commissionFee = 0;
             } else {
-                $commissionFee =
-                    (($amount - (getenv('CASH_CLEARING_FREE_AMOUNT') - $previousOperationSum))
-                        * getenv('CASH_CLEARING_PERCENT')) / 100;
+                $commissionFee = (
+                    ($amount - $discountInformation->getDiscountAmountLeft()) * getenv('CASH_CLEARING_PERCENT')
+                    ) / 100;
             }
         }
 

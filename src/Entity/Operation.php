@@ -5,6 +5,9 @@ namespace App\Entity;
 
 class Operation
 {
+    /** @var int */
+    private $operationId;
+
     /** @var string */
     private $operationDate;
 
@@ -22,6 +25,18 @@ class Operation
 
     /** @var string */
     private $currency;
+
+    public function setOperationId(int $operationId): Operation
+    {
+        $this->operationId = $operationId;
+
+        return $this;
+    }
+
+    public function getOperationId():int
+    {
+        return $this->operationId;
+    }
 
     public function setDate(string $operationDate): Operation
     {

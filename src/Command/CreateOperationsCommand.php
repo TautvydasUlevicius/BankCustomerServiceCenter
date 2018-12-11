@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Entity\Operation;
 use App\Service\CommissionManager;
 use App\Service\CsvFileManager;
 use App\Service\CurrencyManager;
+use App\Service\DiscountManager;
 use App\Service\OperationManager;
 use App\Util\AmountRoundUp;
 use App\Util\DateChecker;
@@ -26,6 +26,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
     private $amountRoundUp;
     private $csvFileManager;
     private $currencyManager;
+    private $discountManager;
     private $operationManager;
     private $commissionManager;
 
@@ -35,6 +36,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
         AmountRoundUp $amountRoundUp,
         CsvFileManager $csvFileManager,
         CurrencyManager $currencyManager,
+        DiscountManager $discountManager,
         OperationManager $operationManager,
         CommissionManager $commissionManager
     ) {
@@ -46,6 +48,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
         $this->amountRoundUp = $amountRoundUp;
         $this->csvFileManager = $csvFileManager;
         $this->currencyManager = $currencyManager;
+        $this->discountManager = $discountManager;
         $this->operationManager = $operationManager;
         $this->commissionManager = $commissionManager;
 
@@ -74,85 +77,39 @@ class CreateOperationsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $fileLocation = $input->getOptions();
-
         $this->fileValidator->checkIfFileExists($fileLocation['location']);
-        $this->fileValidator->checkIfFileTypeIsValid(
-            $fileLocation['location'],
-            getenv('SUPPORTED_OPERATIONS_FILE_TYPE')
-        );
+        $this->fileValidator->checkIfFileTypeIsValid($fileLocation['location'], getenv('SUPPORTED_FILE_TYPE'));
 
-        $arrayOfOperations = $this->csvFileManager->getOperationsFromFile($fileLocation['location']);
+        $operationsArray = $this->csvFileManager->getOperationsFromFile($fileLocation['location']);
+        $operationObjects = $this->operationManager->createArrayOfOperationObjects($operationsArray);
 
-        $previousOperations = [];
-        $operationCounter = 0;
-        foreach ($arrayOfOperations as $operation) {
-            $operation = $this->operationManager->createOperationObject($operation);
+        foreach ($operationObjects as $operationObject) {
+            $operationObject->setAmount(
+                $this->currencyManager->convert(
+                    $operationObject->getAmount(),
+                    $operationObject->getCurrency(),
+                    getenv('MAIN_CURRENCY')
+                )
+            );
+        }
 
-            $operationAmountInEur = $this->currencyManager->convert(
-                $operation->getAmount(),
-                $operation->getCurrency(),
-                getenv('MAIN_CURRENCY')
+        $discountInformation = $this->discountManager->calculateDiscountForOperations($operationObjects);
+        $calculatedCommissions = $this->commissionManager->calculateCommission($operationObjects, $discountInformation);
+
+        $counter = 0;
+        foreach ($calculatedCommissions as $commission) {
+            $output->writeln(
+                $this->amountRoundUp->roundUpAmount(
+                    $this->currencyManager->convert(
+                        $commission,
+                        getenv('MAIN_CURRENCY'),
+                        $operationObjects[$counter]->getCurrency()
+                    ),
+                    $operationObjects[$counter]->getCurrency()
+                )
             );
 
-            $previousOperations[$operationCounter]['UserId'] = $operation->getUserId();
-            $previousOperations[$operationCounter]['UserType'] = $operation->getUserType();
-            $previousOperations[$operationCounter]['Date'] = $operation->getDate();
-            $previousOperations[$operationCounter]['Amount'] = $operationAmountInEur;
-            $previousOperations[$operationCounter]['OperationType'] = $operation->getOperationType();
-            $previousOperations[$operationCounter]['OperationPerWeek'] = 1;
-            $previousOperations[$operationCounter]['TotalOperationSum'] = 0;
-
-            $counter = 0;
-
-            while ($counter < $operationCounter) {
-                if ($this->checkIfOperationsSameGroup($previousOperations[$counter], $operation) === true) {
-                    $previousOperations[$operationCounter]['OperationPerWeek']++;
-                    $previousOperations[$operationCounter]['TotalOperationSum'] +=
-                        $previousOperations[$counter]['Amount'];
-                }
-                $counter++;
-            }
-            $operationCounter++;
-            $commission = $this->calculateOperationCommission($previousOperations);
-            $commission = $this->currencyManager->convert(
-                $commission,
-                getenv('MAIN_CURRENCY'),
-                $operation->getCurrency()
-            );
-            $commission = $this->amountRoundUp->roundUpAmount($commission, $operation->getCurrency());
-
-            $output->writeln($commission);
+            $counter++;
         }
-    }
-
-    private function checkIfOperationsSameGroup(array $previousOperation, Operation $operation): bool
-    {
-        if ($previousOperation['UserId'] === $operation->getUserId() &&
-            $previousOperation['UserType'] === $operation->getUserType() &&
-            $previousOperation['OperationType'] == $operation->getOperationType() &&
-            $this->dateChecker->checkIfTwoDatesOnSameWeek($previousOperation['Date'], $operation->getDate()) === true
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function calculateOperationCommission(array $operations)
-    {
-        foreach ($operations as $operation) {
-            if ($operation['OperationType'] === 'cash_in') {
-                $commission = $this->commissionManager->moneyDeposit($operation['Amount']);
-            } elseif ($operation['OperationType'] === 'cash_out' && $operation['UserType'] === 'legal') {
-                $commission = $this->commissionManager->cashClearingForLegalPeople($operation['Amount']);
-            } else {
-                $commission = $this->commissionManager->cashClearingForNaturalPeople(
-                    $operation['Amount'],
-                    $operation['OperationPerWeek'],
-                    $operation['TotalOperationSum']
-                );
-            }
-        }
-        return $commission;
     }
 }

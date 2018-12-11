@@ -7,16 +7,25 @@ use App\Entity\Operation;
 
 class OperationManager
 {
-    public function createOperationObject(array $operation): Operation
+    public function createArrayOfOperationObjects(array $operations): array
     {
-        $operationObject = new Operation();
-        $operationObject->setDate($operation[0]);
-        $operationObject->setUserId($operation[1]);
-        $operationObject->setUserType($operation[2]);
-        $operationObject->setOperationType($operation[3]);
-        $operationObject->setAmount(floatval($operation[4]));
-        $operationObject->setCurrency($operation[5]);
+        $counter = 0;
 
-        return $operationObject;
+        $arrayOfOperationObjects = [];
+
+        foreach ($operations as $operation) {
+            $arrayOfOperationObjects[$counter] = (new Operation())
+                ->setOperationId($counter)
+                ->setDate($operation[0])
+                ->setUserId($operation[1])
+                ->setUserType($operation[2])
+                ->setOperationType($operation[3])
+                ->setAmount(floatval($operation[4]))
+                ->setCurrency($operation[5])
+            ;
+            $counter++;
+        }
+
+        return $arrayOfOperationObjects;
     }
 }
