@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Evp\Component\Money\Money;
+
 class Operation
 {
     /** @var int */
@@ -20,11 +22,8 @@ class Operation
     /** @var string */
     private $operationType;
 
-    /** @var float */
-    private $amount;
-
-    /** @var string */
-    private $currency;
+    /** @var Money */
+    private $money;
 
     public function setOperationId(int $operationId): Operation
     {
@@ -86,27 +85,18 @@ class Operation
         return $this->operationType;
     }
 
-    public function setAmount(float $amount): Operation
+    public function setMoney(string $amount, string $currency): Operation
     {
-        $this->amount = $amount;
+        $this->money = (new Money())
+            ->setAmount($amount)
+            ->setCurrency($currency)
+        ;
 
         return $this;
     }
 
-    public function getAmount(): float
+    public function getMoney(): Money
     {
-        return $this->amount;
-    }
-
-    public function setCurrency(string $currency): Operation
-    {
-        $this->currency = $currency;
-
-        return $this;
-    }
-
-    public function getCurrency(): string
-    {
-        return $this->currency;
+        return $this->money;
     }
 }

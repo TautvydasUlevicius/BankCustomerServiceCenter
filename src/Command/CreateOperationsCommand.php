@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Entity\Operation;
 use App\Service\CommissionManager;
 use App\Service\CsvFileManager;
 use App\Service\CurrencyManager;
 use App\Service\DiscountManager;
 use App\Service\OperationManager;
-use App\Util\AmountRoundUp;
-use App\Util\DateChecker;
+ use App\Util\DateChecker;
 use App\Util\FileValidator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -23,7 +23,6 @@ class CreateOperationsCommand extends ContainerAwareCommand
     private $dotenv;
     private $dateChecker;
     private $fileValidator;
-    private $amountRoundUp;
     private $csvFileManager;
     private $currencyManager;
     private $discountManager;
@@ -33,7 +32,6 @@ class CreateOperationsCommand extends ContainerAwareCommand
     public function __construct(
         DateChecker $dateChecker,
         FileValidator $fileValidator,
-        AmountRoundUp $amountRoundUp,
         CsvFileManager $csvFileManager,
         CurrencyManager $currencyManager,
         DiscountManager $discountManager,
@@ -45,7 +43,6 @@ class CreateOperationsCommand extends ContainerAwareCommand
         $this->dotenv = new Dotenv();
         $this->dateChecker = $dateChecker;
         $this->fileValidator = $fileValidator;
-        $this->amountRoundUp = $amountRoundUp;
         $this->csvFileManager = $csvFileManager;
         $this->currencyManager = $currencyManager;
         $this->discountManager = $discountManager;
@@ -83,14 +80,10 @@ class CreateOperationsCommand extends ContainerAwareCommand
         $operationsArray = $this->csvFileManager->getOperationsFromFile($fileLocation['location']);
         $operationObjects = $this->operationManager->createArrayOfOperationObjects($operationsArray);
 
+        /** @var Operation $operationObject */
         foreach ($operationObjects as $operationObject) {
-            $operationObject->setAmount(
-                $this->currencyManager->convert(
-                    $operationObject->getAmount(),
-                    $operationObject->getCurrency(),
-                    getenv('MAIN_CURRENCY')
-                )
-            );
+            $convertedMoney = $this->currencyManager->convert($operationObject->getMoney(), getenv('MAIN_CURRENCY'));
+            $operationObject->setMoney($convertedMoney->getAmount(), $operationObject->getMoney()->getCurrency());
         }
 
         $discountInformation = $this->discountManager->calculateDiscountForOperations($operationObjects);
@@ -98,17 +91,13 @@ class CreateOperationsCommand extends ContainerAwareCommand
 
         $counter = 0;
         foreach ($calculatedCommissions as $commission) {
-            $output->writeln(
-                $this->amountRoundUp->roundUpAmount(
-                    $this->currencyManager->convert(
-                        $commission,
-                        getenv('MAIN_CURRENCY'),
-                        $operationObjects[$counter]->getCurrency()
-                    ),
-                    $operationObjects[$counter]->getCurrency()
-                )
-            );
+            $convertedCommission[] =
+                $this->currencyManager->convert(
+                    $commission,
+                    $operationObjects[$counter]->getMoney()->getCurrency()
+                );
 
+            $output->writeln($convertedCommission[$counter]);
             $counter++;
         }
     }

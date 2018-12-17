@@ -14,7 +14,6 @@
             <tag name="console.command" command="app:calculate-commissions" />
             <argument type="service" id="App\Util\DateChecker" />
             <argument type="service" id="App\Util\FileValidator" />
-            <argument type="service" id="App\Util\AmountRoundUp" />
             <argument type="service" id="App\Service\CsvFileManager" />
             <argument type="service" id="App\Service\CurrencyManager" />
             <argument type="service" id="App\Service\DiscountManager" />
@@ -25,7 +24,6 @@
         <service id="App\Entity\Operation" />
 
         <service id="App\Util\DateChecker" />
-        <service id="App\Util\AmountRoundUp" />
         <service id="App\Util\FileValidator" />
 
         <service id="App\Service\CsvFileManager" />

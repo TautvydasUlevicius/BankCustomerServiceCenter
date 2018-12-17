@@ -3,14 +3,21 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Evp\Component\Money\Money;
+
 class CurrencyManager
 {
-    public function convert(float $amount, string $fromCurrency, string $toCurrency)
+    public function convert(Money $money, string $toCurrency): Money
     {
-        if ($fromCurrency === $toCurrency) {
-            return $amount;
+        if ($money->getCurrency() === $toCurrency) {
+            return $money;
         }
 
-        return ($amount/getenv($fromCurrency))*getenv($toCurrency);
+        $money->setAmount((($money->getAmount()/getenv($money->getCurrency()))*getenv($toCurrency)));
+
+        return $money
+            ->ceil()
+            ->setCurrency($toCurrency)
+        ;
     }
 }

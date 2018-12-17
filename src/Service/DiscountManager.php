@@ -15,26 +15,22 @@ class DiscountManager
         $this->dateChecker = $dateChecker;
     }
 
-    public function calculateDiscountForOperations(array $arrayOfOperationObjects): array
+    public function calculateDiscountForOperations(array $operationObjects): array
     {
-        $discountInformation = [];
-
-        for ($i = 0; $i < count($arrayOfOperationObjects); $i++) {
-            $discountAmount = floatval(getenv('CASH_CLEARING_FREE_AMOUNT'));
+        for ($i = 0; $i < count($operationObjects); $i++) {
             $counter = 0;
             $operationNumber = 1;
+            $discountAmount = floatval(getenv('CASH_CLEARING_FREE_AMOUNT'));
 
             while ($counter < $i) {
-                if ($arrayOfOperationObjects[$i]->getUserId() === $arrayOfOperationObjects[$counter]->getUserId() &&
-                    $arrayOfOperationObjects[$i]->getUserType() === $arrayOfOperationObjects[$counter]->getUserType() &&
-                    $arrayOfOperationObjects[$i]->getOperationType() === $arrayOfOperationObjects[$counter]->getOperationType() &&
-                    $this->dateChecker->checkIfTwoDatesOnSameWeek(
-                        $arrayOfOperationObjects[$i]->getDate(),
-                        $arrayOfOperationObjects[$counter]->getDate()
-                    ) === true
+                if ($operationObjects[$i]->getUserId() === $operationObjects[$counter]->getUserId() &&
+                    $operationObjects[$i]->getUserType() === $operationObjects[$counter]->getUserType() &&
+                    $operationObjects[$i]->getOperationType() === $operationObjects[$counter]->getOperationType() &&
+                    $this->dateChecker->checkIfTwoDatesOnSameWeek($operationObjects[$i]->getDate(), $operationObjects[$counter]->getDate()) === true
                 ) {
                     $operationNumber++;
-                    $discountAmount -= $arrayOfOperationObjects[$counter]->getAmount();
+                    $discountAmount -= $operationObjects[$counter]->getMoney()->getAmount();
+
                     if ($discountAmount < 0) {
                         $discountAmount = 0;
                     }
@@ -43,9 +39,9 @@ class DiscountManager
             }
 
             $discountInformation[$i] = (new Discount())
-            ->setOperationId($arrayOfOperationObjects[$i]->getOperationId())
-            ->setOperationNumber($operationNumber)
-            ->setDiscountAmountLeft($discountAmount)
+                ->setOperationId($operationObjects[$i]->getOperationId())
+                ->setOperationNumber($operationNumber)
+                ->setDiscount($discountAmount, getenv('MAIN_CURRENCY'))
             ;
         }
         return $discountInformation;

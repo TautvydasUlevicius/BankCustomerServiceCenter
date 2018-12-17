@@ -20,8 +20,7 @@ class OperationManager
                 ->setUserId($operation[1])
                 ->setUserType($operation[2])
                 ->setOperationType($operation[3])
-                ->setAmount(floatval($operation[4]))
-                ->setCurrency($operation[5])
+                ->setMoney($operation[4], $operation[5])
             ;
             $counter++;
         }
