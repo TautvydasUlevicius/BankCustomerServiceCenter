@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Entity\Discount;
 use Evp\Component\Money\Money;
+use Exception;
 
 class CommissionManager
 {
@@ -12,8 +13,14 @@ class CommissionManager
         array $arrayOfOperationObjects,
         array $discountInformation
     ): array {
+
+        if (empty($discountInformation)) {
+            throw new Exception('Missing discount information');
+        }
+
         $counter = 0;
 
+        $calculatedCommissions = [];
         foreach ($arrayOfOperationObjects as $operation) {
             if ($operation->getOperationType() === getenv('MONEY_DEPOSIT')) {
                 $commission = $this->cashIn($operation->getMoney());

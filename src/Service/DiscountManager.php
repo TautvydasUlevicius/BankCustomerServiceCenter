@@ -17,6 +17,8 @@ class DiscountManager
 
     public function calculateDiscountForOperations(array $operationObjects): array
     {
+        $discountInformation = [];
+
         for ($i = 0; $i < count($operationObjects); $i++) {
             $counter = 0;
             $operationNumber = 1;
@@ -44,6 +46,7 @@ class DiscountManager
                 ->setDiscount($discountAmount, getenv('MAIN_CURRENCY'))
             ;
         }
+
         return $discountInformation;
     }
 }
