@@ -8,7 +8,6 @@ use App\Service\CommissionManager;
 use App\Service\CurrencyManager;
 use App\Service\OperationManager;
 use App\Util\DateChecker;
-use Evp\Component\Money\Money;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;

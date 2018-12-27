@@ -10,14 +10,14 @@ class CurrencyManager
     public function convert(Money $money, string $toCurrency)
     {
         if ($money->getCurrency() === $toCurrency) {
-            return $money;
+            return $money->ceil(Money::getFraction($toCurrency));
         }
 
         return $money
             ->div($_ENV[$money->getCurrency()])
             ->mul($_ENV[$toCurrency])
-            ->setCurrency($toCurrency)
             ->ceil(Money::getFraction($toCurrency))
+            ->setCurrency($toCurrency)
         ;
     }
 }
