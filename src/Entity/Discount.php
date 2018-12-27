@@ -40,17 +40,17 @@ class Discount
         return $this->operationNumber;
     }
 
-    public function setDiscount(float $amount, string $currency): Discount
+    public function setMoney(Money $money): Discount
     {
         $this->money = (new Money())
-            ->setAmount($amount)
-            ->setCurrency($currency)
+            ->setAmount($money->getAmount())
+            ->setCurrency($money->getCurrency())
         ;
 
         return $this;
     }
 
-    public function getDiscount(): Money
+    public function getMoney(): Money
     {
         return $this->money;
     }

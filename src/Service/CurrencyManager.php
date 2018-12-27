@@ -7,17 +7,17 @@ use Evp\Component\Money\Money;
 
 class CurrencyManager
 {
-    public function convert(Money $money, string $toCurrency): Money
+    public function convert(Money $money, string $toCurrency)
     {
         if ($money->getCurrency() === $toCurrency) {
             return $money;
         }
 
-        $money->setAmount((($money->getAmount()/getenv($money->getCurrency()))*getenv($toCurrency)));
-
         return $money
-            ->ceil()
+            ->div($_ENV[$money->getCurrency()])
+            ->mul($_ENV[$toCurrency])
             ->setCurrency($toCurrency)
+            ->ceil(Money::getFraction($toCurrency))
         ;
     }
 }

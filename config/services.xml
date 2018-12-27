@@ -13,10 +13,7 @@
         <service id="App\Command\CreateOperationsCommand">
             <tag name="console.command" command="app:calculate-commissions" />
             <argument type="service" id="App\Util\DateChecker" />
-            <argument type="service" id="App\Util\FileValidator" />
-            <argument type="service" id="App\Service\CsvFileManager" />
             <argument type="service" id="App\Service\CurrencyManager" />
-            <argument type="service" id="App\Service\DiscountManager" />
             <argument type="service" id="App\Service\OperationManager" />
             <argument type="service" id="App\Service\CommissionManager" />
         </service>
@@ -33,7 +30,13 @@
             <argument type="service" id="App\Util\DateChecker" />
         </service>
 
-        <service id="App\Service\OperationManager" />
-        <service id="App\Service\CommissionManager" />
+        <service id="App\Service\OperationManager" >
+            <argument type="service" id="App\Util\FileValidator" />
+            <argument type="service" id="App\Service\CsvFileManager" />
+        </service>
+
+        <service id="App\Service\CommissionManager">
+            <argument type="service" id="App\Service\DiscountManager" />
+        </service>
     </services>
 </container>

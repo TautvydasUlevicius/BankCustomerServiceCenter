@@ -5,59 +5,43 @@ namespace App\Command;
 
 use App\Entity\Operation;
 use App\Service\CommissionManager;
-use App\Service\CsvFileManager;
 use App\Service\CurrencyManager;
-use App\Service\DiscountManager;
 use App\Service\OperationManager;
- use App\Util\DateChecker;
-use App\Util\FileValidator;
+use App\Util\DateChecker;
+use Evp\Component\Money\Money;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Dotenv\Dotenv;
 
 class CreateOperationsCommand extends ContainerAwareCommand
 {
-    private $dotenv;
     private $dateChecker;
-    private $fileValidator;
-    private $csvFileManager;
     private $currencyManager;
-    private $discountManager;
     private $operationManager;
     private $commissionManager;
 
     public function __construct(
         DateChecker $dateChecker,
-        FileValidator $fileValidator,
-        CsvFileManager $csvFileManager,
         CurrencyManager $currencyManager,
-        DiscountManager $discountManager,
         OperationManager $operationManager,
         CommissionManager $commissionManager
     ) {
         parent::__construct();
 
-        $this->dotenv = new Dotenv();
         $this->dateChecker = $dateChecker;
-        $this->fileValidator = $fileValidator;
-        $this->csvFileManager = $csvFileManager;
         $this->currencyManager = $currencyManager;
-        $this->discountManager = $discountManager;
         $this->operationManager = $operationManager;
         $this->commissionManager = $commissionManager;
-
-        $this->dotenv->load('../BankCustomerServiceCenter/config/parameters.env');
     }
 
     protected function configure()
     {
         $this
             ->setName('app:calculate-commissions')
-            ->setHelp('This command gets operations from a csv file and creates an entity')
-            ->setDescription('Gets operations from a CSV file and creates an entity')
+            ->setHelp('This command gets operations from a csv file and calculates the commission for the operations')
+            ->setDescription('Gets operations from a CSV file and calculates the commission')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption(
@@ -74,31 +58,25 @@ class CreateOperationsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $fileLocation = $input->getOptions();
-        $this->fileValidator->checkIfFileExists($fileLocation['location']);
-        $this->fileValidator->checkIfFileTypeIsValid($fileLocation['location'], getenv('SUPPORTED_FILE_TYPE'));
-
-        $operationsArray = $this->csvFileManager->getOperationsFromFile($fileLocation['location']);
-        $operationObjects = $this->operationManager->createArrayOfOperationObjects($operationsArray);
+        $operationObjects = $this->operationManager->createOperationsFromFile($fileLocation['location']);
 
         /** @var Operation $operationObject */
         foreach ($operationObjects as $operationObject) {
-            $convertedMoney = $this->currencyManager->convert($operationObject->getMoney(), getenv('MAIN_CURRENCY'));
-            $operationObject->setMoney($convertedMoney->getAmount(), $operationObject->getMoney()->getCurrency());
+            $operationObject->getMoney()->setAmount(
+                $this->currencyManager->convert($operationObject->getMoney(), $_ENV['MAIN_CURRENCY'])->getAmount()
+            );
         }
 
-        $discountInformation = $this->discountManager->calculateDiscountForOperations($operationObjects);
-        $calculatedCommissions = $this->commissionManager->calculateCommission($operationObjects, $discountInformation);
+        $calculatedCommissions = $this->commissionManager->calculateCommission($operationObjects);
 
         $counter = 0;
+
         foreach ($calculatedCommissions as $commission) {
-            $convertedCommission[] =
-                $this->currencyManager->convert(
+                $output->writeln($this->currencyManager->convert(
                     $commission,
                     $operationObjects[$counter]->getMoney()->getCurrency()
-                );
-
-            $output->writeln($convertedCommission[$counter]);
-            $counter++;
+                ));
+                $counter++;
         }
     }
 }

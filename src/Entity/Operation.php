@@ -85,11 +85,11 @@ class Operation
         return $this->operationType;
     }
 
-    public function setMoney(string $amount, string $currency): Operation
+    public function setMoney(Money $money): Operation
     {
         $this->money = (new Money())
-            ->setAmount($amount)
-            ->setCurrency($currency)
+            ->setAmount($money->getAmount())
+            ->setCurrency($money->getCurrency())
         ;
 
         return $this;

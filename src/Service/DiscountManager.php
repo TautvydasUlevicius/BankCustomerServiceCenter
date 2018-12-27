@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Entity\Discount;
 use App\Util\DateChecker;
+use Evp\Component\Money\Money;
 
 class DiscountManager
 {
@@ -22,7 +23,7 @@ class DiscountManager
         for ($i = 0; $i < count($operationObjects); $i++) {
             $counter = 0;
             $operationNumber = 1;
-            $discountAmount = floatval(getenv('CASH_CLEARING_FREE_AMOUNT'));
+            $discountAmount = new Money($_ENV['CASH_CLEARING_FREE_AMOUNT'], $_ENV['MAIN_CURRENCY']);
 
             while ($counter < $i) {
                 if ($operationObjects[$i]->getUserId() === $operationObjects[$counter]->getUserId() &&
@@ -31,10 +32,16 @@ class DiscountManager
                     $this->dateChecker->checkIfTwoDatesOnSameWeek($operationObjects[$i]->getDate(), $operationObjects[$counter]->getDate()) === true
                 ) {
                     $operationNumber++;
-                    $discountAmount -= $operationObjects[$counter]->getMoney()->getAmount();
 
-                    if ($discountAmount < 0) {
-                        $discountAmount = 0;
+                    $originalCurrency = $operationObjects[$counter]->getMoney()->getCurrency();
+                    $discountAmountLeft = $discountAmount->sub(
+                        $operationObjects[$counter]->getMoney()->setCurrency($_ENV['MAIN_CURRENCY'])
+                    );
+                    $discountAmount->setAmount($discountAmountLeft->getAmount());
+                    $operationObjects[$counter]->getMoney()->setCurrency($originalCurrency);
+
+                    if ($discountAmount->getAmount() < 0) {
+                        $discountAmount->setAmount(0);
                     }
                 }
                 $counter++;
@@ -43,7 +50,7 @@ class DiscountManager
             $discountInformation[$i] = (new Discount())
                 ->setOperationId($operationObjects[$i]->getOperationId())
                 ->setOperationNumber($operationNumber)
-                ->setDiscount($discountAmount, getenv('MAIN_CURRENCY'))
+                ->setMoney($discountAmount)
             ;
         }
 
