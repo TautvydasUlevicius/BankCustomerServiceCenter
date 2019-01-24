@@ -21,7 +21,7 @@
         <service id="App\Entity\Operation" />
 
         <service id="App\Util\DateChecker" />
-        <service id="App\Util\FileValidator" />
+        <service id="App\Util\Validator" />
 
         <service id="App\Service\CsvFileManager" />
         <service id="App\Service\CurrencyManager" />
@@ -31,8 +31,8 @@
         </service>
 
         <service id="App\Service\OperationManager" >
-            <argument type="service" id="App\Util\FileValidator" />
-            <argument type="service" id="App\Service\CsvFileManager" />
+            <argument type="service" id="App\Util\Validator" />
+            <argument type="service" id="App\Service\FileManager" />
         </service>
 
         <service id="App\Service\CommissionManager">

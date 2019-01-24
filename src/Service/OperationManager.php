@@ -4,27 +4,29 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Operation;
-use App\Util\FileValidator;
+use App\Util\Validator;
 use Evp\Component\Money\Money;
 
 class OperationManager
 {
-    private $fileValidator;
-    private $csvFileManager;
+    private $validator;
+    private $fileManager;
 
     public function __construct(
-        FileValidator $fileValidator,
-        CsvFileManager $csvFileManager
+        Validator $validator,
+        FileManager $fileManager
     ) {
-        $this->fileValidator = $fileValidator;
-        $this->csvFileManager = $csvFileManager;
+        $this->validator = $validator;
+        $this->fileManager = $fileManager;
     }
 
-    public function createOperationsFromFile(string $fileLocation): array
+    public function createOperationsFromFile(string $fileLocation, string $dataType)
     {
-        $this->fileValidator->checkIfFileExists($fileLocation);
-        $this->fileValidator->checkIfFileTypeIsValid($fileLocation, $_ENV['SUPPORTED_FILE_TYPE']);
-        $operations = $this->csvFileManager->getOperationsFromFile($fileLocation);
+        $this->validator->checkIfFileExists($fileLocation);
+        $this->validator->checkIfFileTypeIsSupported($fileLocation);
+        $this->validator->checkIfDataTypeIsSupported($dataType);
+        $this->validator->compareFileTypeAndDataType($fileLocation, $dataType);
+        $operations = $this->fileManager->{'getOperationsFrom' . lcfirst($dataType)}($fileLocation);
 
         return $this->createArrayOfOperationObjects($operations);
     }

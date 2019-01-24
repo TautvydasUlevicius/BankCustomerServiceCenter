@@ -9,6 +9,7 @@ use App\Service\CurrencyManager;
 use App\Service\OperationManager;
 use App\Util\DateChecker;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -48,8 +49,13 @@ class CreateOperationsCommand extends ContainerAwareCommand
                         'l',
                         InputOption::VALUE_REQUIRED,
                         'File location path'
-                    )
+                    ),
                 ])
+            )
+            ->addArgument(
+                'format',
+                InputArgument::REQUIRED,
+                'Input data format'
             )
         ;
     }
@@ -57,7 +63,11 @@ class CreateOperationsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $fileLocation = $input->getOptions();
-        $operationObjects = $this->operationManager->createOperationsFromFile($fileLocation['location']);
+        $dataType = $input->getArguments();
+        $operationObjects = $this->operationManager->createOperationsFromFile(
+            $fileLocation['location'],
+            $dataType['format']
+        );
 
         /** @var Operation $operationObject */
         foreach ($operationObjects as $operationObject) {
