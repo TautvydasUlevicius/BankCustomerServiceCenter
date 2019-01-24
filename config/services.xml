@@ -23,7 +23,7 @@
         <service id="App\Util\DateChecker" />
         <service id="App\Util\Validator" />
 
-        <service id="App\Service\CsvFileManager" />
+        <service id="App\Service\FileManager" />
         <service id="App\Service\CurrencyManager" />
 
         <service id="App\Service\DiscountManager">
