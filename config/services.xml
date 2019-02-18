@@ -3,40 +3,71 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services
         http://symfony.com/schema/dic/services/services-1.0.xsd">
+
     <parameters>
         <parameter key="locale">en</parameter>
     </parameters>
+
     <services>
         <defaults autowire="false" autoconfigure="false" public="true" />
         <prototype namespace="App\" resource="../src/*" exclude="../src/{Entity,Migrations,Tests}" />
 
         <service id="App\Command\CreateOperationsCommand">
+            <argument>%env(MAIN_CURRENCY)%</argument>
+            <argument type="service" id="App\Service\CommissionCalculatorChain" />
+
             <tag name="console.command" command="app:calculate-commissions" />
-            <argument type="service" id="App\Util\DateChecker" />
-            <argument type="service" id="App\Service\CurrencyManager" />
-            <argument type="service" id="App\Service\OperationManager" />
-            <argument type="service" id="App\Service\CommissionManager" />
         </service>
 
-        <service id="App\Entity\Operation" />
+        <service id="App\Service\CommissionCalculatorChain" />
 
-        <service id="App\Util\DateChecker" />
-        <service id="App\Util\Validator" />
+        <service id="App\Entity\Operation">
+            <tag name="app.commission_calculator" />
+        </service>
 
-        <service id="App\Service\FileManager" />
-        <service id="App\Service\CurrencyManager" />
+        <service id="App\Util\DateChecker">
+            <tag name="app.commission_calculator" />
+        </service>
+
+        <service id="App\Util\Validator">
+            <tag name="app.commission_calculator" />
+        </service>
+
+        <service id="App\Service\FileManager">
+            <tag name="app.commission_calculator" />
+        </service>
+
+        <service id="App\Service\CurrencyManager">
+            <tag name="app.commission_calculator" />
+        </service>
 
         <service id="App\Service\DiscountManager">
+            <argument>%env(MAIN_CURRENCY)%</argument>
+            <argument>%env(CASH_CLEARING_FREE_AMOUNT)%</argument>
             <argument type="service" id="App\Util\DateChecker" />
+
+            <tag name="app.commission_calculator" />
         </service>
 
         <service id="App\Service\OperationManager" >
             <argument type="service" id="App\Util\Validator" />
             <argument type="service" id="App\Service\FileManager" />
+
+            <tag name="app.commission_calculator" />
         </service>
 
         <service id="App\Service\CommissionManager">
+            <argument>%env(LEGAL_PEOPLE)%</argument>
+            <argument>%env(MONEY_DEPOSIT)%</argument>
+            <argument>%env(MAIN_CURRENCY)%</argument>
+            <argument>%env(MONEY_DEPOSIT_PERCENT)%</argument>
+            <argument>%env(CASH_CLEARING_PERCENT)%</argument>
+            <argument>%env(MONEY_DEPOSIT_MAXIMUM_COMMISSION)%</argument>
+            <argument>%env(CASH_CLEARING_MINIMUM_COMMISSION)%</argument>
+            <argument>%env(CASH_CLEARING_AMOUNT_OF_TIMES_FREE)%</argument>
             <argument type="service" id="App\Service\DiscountManager" />
+
+            <tag name="app.commission_calculator" />
         </service>
     </services>
 </container>

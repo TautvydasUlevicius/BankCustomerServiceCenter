@@ -8,6 +8,17 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class Validator
 {
+    const SUPPORTED_FILE_TYPES = [
+        'csv',
+        'json',
+        'txt',
+    ];
+
+    const SUPPORTED_DATA_TYPES = [
+        'csv',
+        'json',
+    ];
+
     public function checkIfFileExists(string $pathToFile)
     {
         if (!file_exists($pathToFile)) {
@@ -17,10 +28,8 @@ class Validator
 
     public function checkIfFileTypeIsSupported(string $pathToFile)
     {
-        $supportedFileTypes = explode(',', $_ENV['SUPPORTED_FILE_TYPES']);
-
         $isSupported = 0;
-        foreach ($supportedFileTypes as $type) {
+        foreach (self::SUPPORTED_FILE_TYPES as $type) {
             if (pathinfo($pathToFile, PATHINFO_EXTENSION) === $type) {
                 $isSupported = 1;
             }
@@ -33,10 +42,8 @@ class Validator
 
     public function checkIfDataTypeIsSupported(string $dataType)
     {
-        $supportedDataTypes = explode(',', $_ENV['SUPPORTED_DATA_TYPES']);
-
         $isSupported = 0;
-        foreach ($supportedDataTypes as $type) {
+        foreach (self::SUPPORTED_DATA_TYPES as $type) {
             if (strtolower($dataType) === $type) {
                 $isSupported = 1;
             }

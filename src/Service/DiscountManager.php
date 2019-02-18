@@ -10,10 +10,17 @@ use Evp\Component\Money\Money;
 class DiscountManager
 {
     private $dateChecker;
+    private $mainCurrency;
+    private $cashClearingFreeAmount;
 
-    public function __construct(DateChecker $dateChecker)
-    {
+    public function __construct(
+        string $mainCurrency,
+        string $cashClearingFreeAmount,
+        DateChecker $dateChecker
+    ) {
         $this->dateChecker = $dateChecker;
+        $this->mainCurrency = $mainCurrency;
+        $this->cashClearingFreeAmount = $cashClearingFreeAmount;
     }
 
     public function calculateDiscountForOperations(array $operationObjects): array
@@ -23,7 +30,7 @@ class DiscountManager
         for ($i = 0; $i < count($operationObjects); $i++) {
             $counter = 0;
             $operationNumber = 1;
-            $discountAmount = new Money($_ENV['CASH_CLEARING_FREE_AMOUNT'], $_ENV['MAIN_CURRENCY']);
+            $discountAmount = new Money($this->cashClearingFreeAmount, $this->mainCurrency);
 
             while ($counter < $i) {
                 if ($operationObjects[$i]->getUserId() === $operationObjects[$counter]->getUserId() &&
@@ -35,7 +42,7 @@ class DiscountManager
 
                     $originalCurrency = $operationObjects[$counter]->getMoney()->getCurrency();
                     $discountAmountLeft = $discountAmount->sub(
-                        $operationObjects[$counter]->getMoney()->setCurrency($_ENV['MAIN_CURRENCY'])
+                        $operationObjects[$counter]->getMoney()->setCurrency($this->mainCurrency)
                     );
                     $discountAmount->setAmount($discountAmountLeft->getAmount());
                     $operationObjects[$counter]->getMoney()->setCurrency($originalCurrency);

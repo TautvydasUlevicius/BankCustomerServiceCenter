@@ -26,7 +26,12 @@ class OperationManager
         $this->validator->checkIfFileTypeIsSupported($fileLocation);
         $this->validator->checkIfDataTypeIsSupported($dataType);
         $this->validator->compareFileTypeAndDataType($fileLocation, $dataType);
-        $operations = $this->fileManager->{'getOperationsFrom' . lcfirst($dataType)}($fileLocation);
+
+        if ($dataType === 'csv') {
+            $operations = $this->fileManager->getOperationsFromCsv($fileLocation);
+        } else {
+            $operations = $this->fileManager->getOperationsFromJson($fileLocation);
+        }
 
         return $this->createArrayOfOperationObjects($operations);
     }

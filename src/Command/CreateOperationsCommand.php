@@ -4,10 +4,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Operation;
-use App\Service\CommissionManager;
-use App\Service\CurrencyManager;
-use App\Service\OperationManager;
-use App\Util\DateChecker;
+use App\Service\CommissionCalculatorChain;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -17,23 +14,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateOperationsCommand extends ContainerAwareCommand
 {
+    private $mainCurrency;
     private $dateChecker;
     private $currencyManager;
     private $operationManager;
     private $commissionManager;
 
     public function __construct(
-        DateChecker $dateChecker,
-        CurrencyManager $currencyManager,
-        OperationManager $operationManager,
-        CommissionManager $commissionManager
+        string $mainCurrency,
+        CommissionCalculatorChain $calculatorChain
     ) {
         parent::__construct();
 
-        $this->dateChecker = $dateChecker;
-        $this->currencyManager = $currencyManager;
-        $this->operationManager = $operationManager;
-        $this->commissionManager = $commissionManager;
+        $this->mainCurrency = $mainCurrency;
+        $this->dateChecker = $calculatorChain->getDateChecker();
+        $this->currencyManager = $calculatorChain->getCurrencyManager();
+        $this->operationManager = $calculatorChain->getOperationManager();
+        $this->commissionManager = $calculatorChain->getCommissionManager();
     }
 
     protected function configure()
@@ -72,7 +69,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
         /** @var Operation $operationObject */
         foreach ($operationObjects as $operationObject) {
             $operationObject->getMoney()->setAmount(
-                $this->currencyManager->convert($operationObject->getMoney(), $_ENV['MAIN_CURRENCY'])->getAmount()
+                $this->currencyManager->convert($operationObject->getMoney(), $this->mainCurrency)->getAmount()
             );
         }
 

@@ -9,11 +9,36 @@ use Exception;
 
 class CommissionManager
 {
+    private $legalPeople;
+    private $moneyDeposit;
+    private $mainCurrency;
     private $discountManager;
+    private $moneyDepositPercent;
+    private $cashClearingPercent;
+    private $moneyDepositMaximumCommission;
+    private $cashClearingMinimumCommission;
+    private $cashClearingAmountOfTimesFree;
 
-    public function __construct(DiscountManager $discountManager)
-    {
+    public function __construct(
+        string $legalPeople,
+        string $moneyDeposit,
+        string $mainCurrency,
+        string $moneyDepositPercent,
+        string $cashClearingPercent,
+        string $moneyDepositMaximumCommission,
+        string $cashClearingMinimumCommission,
+        string $cashClearingAmountOfTimesFree,
+        DiscountManager $discountManager
+    ) {
+        $this->legalPeople = $legalPeople;
+        $this->moneyDeposit = $moneyDeposit;
+        $this->mainCurrency = $mainCurrency;
         $this->discountManager = $discountManager;
+        $this->moneyDepositPercent = $moneyDepositPercent;
+        $this->cashClearingPercent = $cashClearingPercent;
+        $this->moneyDepositMaximumCommission = $moneyDepositMaximumCommission;
+        $this->cashClearingMinimumCommission = $cashClearingMinimumCommission;
+        $this->cashClearingAmountOfTimesFree = $cashClearingAmountOfTimesFree;
     }
 
     public function calculateCommission(array $arrayOfOperationObjects): array
@@ -28,9 +53,9 @@ class CommissionManager
 
         $calculatedCommissions = [];
         foreach ($arrayOfOperationObjects as $operation) {
-            if ($operation->getOperationType() === $_ENV['MONEY_DEPOSIT']) {
+            if ($operation->getOperationType() === $this->moneyDeposit) {
                 $commission = $this->moneyDeposit($operation->getMoney());
-            } elseif ($operation->getUserType() === $_ENV['LEGAL_PEOPLE']) {
+            } elseif ($operation->getUserType() === $this->legalPeople) {
                 $commission = $this->moneyWithdrawalForLegalPeople($operation->getMoney());
             } else {
                 $commission = $this->moneyWithdrawalForNaturalPeople(
@@ -42,7 +67,7 @@ class CommissionManager
             $calculatedCommissions[$counter] =
                 (new Money())
                     ->setAmount($commission->getAmount())
-                    ->setCurrency($_ENV['MAIN_CURRENCY'])
+                    ->setCurrency($this->mainCurrency)
             ;
 
             $counter++;
@@ -53,10 +78,10 @@ class CommissionManager
 
     protected function moneyDeposit(Money $money): Money
     {
-        $commission = $money->mul($_ENV['MONEY_DEPOSIT_PERCENT'])->div(100);
+        $commission = $money->mul($this->moneyDepositPercent)->div(100);
 
-        if ($commission->getAmount() >= $_ENV['MONEY_DEPOSIT_MAXIMUM_COMMISSION']) {
-            return (new Money())->setAmount($_ENV['MONEY_DEPOSIT_MAXIMUM_COMMISSION']);
+        if ($commission->getAmount() >= $this->moneyDepositMaximumCommission) {
+            return (new Money())->setAmount($this->moneyDepositMaximumCommission);
         }
 
         return $commission;
@@ -64,10 +89,10 @@ class CommissionManager
 
     protected function moneyWithdrawalForLegalPeople(Money $money): Money
     {
-        $commission = $money->mul($_ENV['CASH_CLEARING_PERCENT'])->div(100);
+        $commission = $money->mul($this->cashClearingPercent)->div(100);
 
-        if ($commission->getAmount() <= $_ENV['CASH_CLEARING_MINIMUM_COMMISSION']) {
-            return (new Money())->setAmount($_ENV['CASH_CLEARING_MINIMUM_COMMISSION']);
+        if ($commission->getAmount() <= $this->cashClearingMinimumCommission) {
+            return (new Money())->setAmount($this->cashClearingMinimumCommission);
         }
 
         return $commission;
@@ -77,11 +102,11 @@ class CommissionManager
         Money $money,
         Discount $discountInformation
     ): Money {
-        if ($discountInformation->getOperationNumber() > $_ENV['CASH_CLEARING_AMOUNT_OF_TIMES_FREE']) {
-            $commissionFee = $money->mul($_ENV['CASH_CLEARING_PERCENT'])->div(100);
+        if ($discountInformation->getOperationNumber() > $this->cashClearingAmountOfTimesFree) {
+            $commissionFee = $money->mul($this->cashClearingPercent)->div(100);
         } else {
             if ($discountInformation->getMoney()->getAmount() === 0) {
-                $commissionFee = $money->mul($_ENV['CASH_CLEARING_PERCENT'])->div(100);
+                $commissionFee = $money->mul($this->cashClearingPercent)->div(100);
             } elseif ($discountInformation->getMoney()->getAmount() > 0 &&
                 $discountInformation->getMoney()->getAmount() > $money->getAmount()) {
                 $commissionFee = $money->setAmount(0);
@@ -89,9 +114,9 @@ class CommissionManager
                 $originalCurrency = $money->getCurrency();
 
                 $commissionFee = $money
-                    ->setCurrency($_ENV['MAIN_CURRENCY'])
+                    ->setCurrency($this->mainCurrency)
                     ->sub($discountInformation->getMoney())
-                    ->mul($_ENV['CASH_CLEARING_PERCENT'])
+                    ->mul($this->cashClearingPercent)
                     ->div(100)
                 ;
 
