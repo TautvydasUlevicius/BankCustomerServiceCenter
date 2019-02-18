@@ -12,27 +12,6 @@ class CommissionCalculatorPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        /*if (!$container->has(CommissionCalculatorChain::class)) {
-            return;
-        }
-
-        $definition = $container->findDefinition(CommissionCalculatorChain::class);
-
-        $taggedServices = $container->findTaggedServiceIds('app.commission_calculator');
-
-        foreach ($taggedServices as $id => $tags) {
-            var_dump($id);
-            foreach ($tags as $attributes) {
-                $definition->addMethodCall(
-                    'addServices',
-                    [
-                        new Reference($id),
-                        $attributes['alias']
-                    ]
-                );
-            }
-        }*/
-
         $definition = $container->findDefinition(CommissionCalculatorChain::class);
         $references = [];
 
