@@ -6,6 +6,19 @@
 
     <parameters>
         <parameter key="locale">en</parameter>
+
+        <parameter key="env.configuration" type="collection">
+            <parameter key="legal_people">%env(LEGAL_PEOPLE)%</parameter>
+            <parameter key="money_deposit">%env(MONEY_DEPOSIT)%</parameter>
+            <parameter key="main_currency">%env(MAIN_CURRENCY)%</parameter>
+            <parameter key="deposit_percent">%env(DEPOSIT_PERCENT)%</parameter>
+            <parameter key="withdrawal_percent">%env(WITHDRAWAL_PERCENT)%</parameter>
+            <parameter key="withdrawal_free_amount">%env(WITHDRAWAL_FREE_AMOUNT)%</parameter>
+            <parameter key="deposit_maximum_commission">%env(DEPOSIT_MAXIMUM_COMMISSION)%</parameter>
+            <parameter key="withdrawal_minimum_commission">%env(WITHDRAWAL_MINIMUM_COMMISSION)%</parameter>
+            <parameter key="withdrawal_amount_of_times_free">%env(WITHDRAWAL_AMOUNT_OF_TIMES_FREE)%</parameter>
+        </parameter>
+
     </parameters>
 
     <services>
@@ -13,61 +26,45 @@
         <prototype namespace="App\" resource="../src/*" exclude="../src/{Entity,Migrations,Tests}" />
 
         <service id="App\Command\CreateOperationsCommand">
-            <argument>%env(MAIN_CURRENCY)%</argument>
-            <argument type="service" id="App\Service\CommissionCalculatorChain" />
+            <argument>%env.configuration%</argument>
+            <argument type="service" id="App\Service\DateChecker" />
+            <argument type="service" id="App\Service\CurrencyManager" />
+            <argument type="service" id="App\Service\OperationManager" />
+            <argument type="service" id="App\Service\CommissionManager" />
 
             <tag name="console.command" command="app:calculate-commissions" />
         </service>
 
-        <service id="App\Service\CommissionCalculatorChain" />
+        <service id="App\Service\Validator" />
+        <service id="App\Service\DateChecker" />
 
-        <service id="App\Entity\Operation">
-            <tag name="app.commission_calculator" />
+        <service id="App\DependencyInjection\FileParserChain" />
+
+        <service id="App\Service\FileManager\CsvParser">
+            <tag name="app.file_parser" alias="csv" />
         </service>
 
-        <service id="App\Util\DateChecker">
-            <tag name="app.commission_calculator" />
+        <service id="App\Service\FileManager\JsonParser">
+            <tag name="app.file_parser" alias="json" />
         </service>
 
-        <service id="App\Util\Validator">
-            <tag name="app.commission_calculator" />
-        </service>
+        <instanceof id="App\Service\FileManager\FileParserInterface" public="true" />
 
-        <service id="App\Service\FileManager">
-            <tag name="app.commission_calculator" />
-        </service>
-
-        <service id="App\Service\CurrencyManager">
-            <tag name="app.commission_calculator" />
-        </service>
+        <service id="App\Service\CurrencyManager" />
 
         <service id="App\Service\DiscountManager">
-            <argument>%env(MAIN_CURRENCY)%</argument>
-            <argument>%env(CASH_CLEARING_FREE_AMOUNT)%</argument>
-            <argument type="service" id="App\Util\DateChecker" />
-
-            <tag name="app.commission_calculator" />
+            <argument>%env.configuration%</argument>
+            <argument type="service" id="App\Service\DateChecker" />
         </service>
 
         <service id="App\Service\OperationManager" >
-            <argument type="service" id="App\Util\Validator" />
-            <argument type="service" id="App\Service\FileManager" />
-
-            <tag name="app.commission_calculator" />
+            <argument type="service" id="App\Service\Validator" />
+            <argument type="service" id="App\DependencyInjection\FileParserChain" />
         </service>
 
         <service id="App\Service\CommissionManager">
-            <argument>%env(LEGAL_PEOPLE)%</argument>
-            <argument>%env(MONEY_DEPOSIT)%</argument>
-            <argument>%env(MAIN_CURRENCY)%</argument>
-            <argument>%env(MONEY_DEPOSIT_PERCENT)%</argument>
-            <argument>%env(CASH_CLEARING_PERCENT)%</argument>
-            <argument>%env(MONEY_DEPOSIT_MAXIMUM_COMMISSION)%</argument>
-            <argument>%env(CASH_CLEARING_MINIMUM_COMMISSION)%</argument>
-            <argument>%env(CASH_CLEARING_AMOUNT_OF_TIMES_FREE)%</argument>
+            <argument>%env.configuration%</argument>
             <argument type="service" id="App\Service\DiscountManager" />
-
-            <tag name="app.commission_calculator" />
         </service>
     </services>
 </container>

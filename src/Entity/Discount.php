@@ -7,13 +7,19 @@ use Evp\Component\Money\Money;
 
 class Discount
 {
-    /** @var int */
+    /**
+     * @var int
+     */
     private $operationId;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $operationNumber;
 
-    /** @var Money */
+    /**
+     * @var Money
+     */
     private $money;
 
     public function setOperationId(int $operationId): Discount

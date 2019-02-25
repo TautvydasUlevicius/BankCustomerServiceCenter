@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\DependencyInjection\FileParserChain;
 use App\Entity\Operation;
-use App\Util\Validator;
 use Evp\Component\Money\Money;
 
 class OperationManager
@@ -14,30 +14,17 @@ class OperationManager
 
     public function __construct(
         Validator $validator,
-        FileManager $fileManager
+        FileParserChain $fileParserChain
     ) {
         $this->validator = $validator;
-        $this->fileManager = $fileManager;
+        $this->fileManager = $fileParserChain;
     }
 
-    public function createOperationsFromFile(string $fileLocation, string $dataType)
+    public function createOperationsFromFile(string $fileLocation, string $dataType): array
     {
-        $this->validator->checkIfFileExists($fileLocation);
-        $this->validator->checkIfFileTypeIsSupported($fileLocation);
-        $this->validator->checkIfDataTypeIsSupported($dataType);
-        $this->validator->compareFileTypeAndDataType($fileLocation, $dataType);
+        $this->validator->validateOperationsFile($fileLocation, $dataType);
+        $operations = $this->fileManager->getFileParser($dataType)->parseFile($fileLocation);
 
-        if ($dataType === 'csv') {
-            $operations = $this->fileManager->getOperationsFromCsv($fileLocation);
-        } else {
-            $operations = $this->fileManager->getOperationsFromJson($fileLocation);
-        }
-
-        return $this->createArrayOfOperationObjects($operations);
-    }
-
-    protected function createArrayOfOperationObjects(array $operations): array
-    {
         $counter = 0;
 
         $arrayOfOperationObjects = [];

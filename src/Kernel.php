@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\CommissionCalculatorPass;
+use App\DependencyInjection\Compiler\FileParserPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -62,6 +62,6 @@ class Kernel extends BaseKernel
 
     protected function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new CommissionCalculatorPass());
+        $container->addCompilerPass(new FileParserPass());
     }
 }

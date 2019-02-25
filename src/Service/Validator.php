@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Util;
+namespace App\Service;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -18,6 +18,14 @@ class Validator
         'csv',
         'json',
     ];
+
+    public function validateOperationsFile(string $fileLocation, string $dataType)
+    {
+        $this->checkIfFileExists($fileLocation);
+        $this->checkIfFileTypeIsSupported($fileLocation);
+        $this->checkIfDataTypeIsSupported($dataType);
+        $this->compareFileTypeAndDataType($fileLocation, $dataType);
+    }
 
     public function checkIfFileExists(string $pathToFile)
     {
@@ -60,7 +68,7 @@ class Validator
         $file = pathinfo($pathToFile, PATHINFO_EXTENSION);
         if ($data !== $file) {
             if ($data === 'json' && $file !== 'txt') {
-                throw new \Exception('File type and data type do not match');
+                throw new Exception('File type and data type do not match');
             }
         }
     }

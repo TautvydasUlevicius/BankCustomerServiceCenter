@@ -7,22 +7,34 @@ use Evp\Component\Money\Money;
 
 class Operation
 {
-    /** @var int */
+    /**
+     * @var int
+     */
     private $operationId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $operationDate;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $userId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $userType;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $operationType;
 
-    /** @var Money */
+    /**
+     * @var Money
+     */
     private $money;
 
     public function setOperationId(int $operationId): Operation
