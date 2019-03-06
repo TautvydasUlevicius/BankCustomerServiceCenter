@@ -24,7 +24,7 @@ class FileParserPass implements CompilerPassInterface
             foreach ($tags as $attributes) {
                 $definition->addMethodCall('addFileParser', [
                     new Reference($id),
-                    $attributes["alias"]
+                    $attributes['format']
                 ]);
             }
         }

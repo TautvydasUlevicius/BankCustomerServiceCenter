@@ -29,7 +29,10 @@ class Discount
         return $this;
     }
 
-    public function getOperationId(): int
+    /**
+     * @return int/null
+     */
+    public function getOperationId()
     {
         return $this->operationId;
     }
@@ -41,7 +44,10 @@ class Discount
         return $this;
     }
 
-    public function getOperationNumber(): int
+    /**
+     * @return int/null
+     */
+    public function getOperationNumber()
     {
         return $this->operationNumber;
     }
@@ -56,7 +62,10 @@ class Discount
         return $this;
     }
 
-    public function getMoney(): Money
+    /**
+     * @return Money/null
+     */
+    public function getMoney()
     {
         return $this->money;
     }

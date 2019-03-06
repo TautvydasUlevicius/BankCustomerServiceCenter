@@ -9,4 +9,12 @@ class JsonParser implements FileParserInterface
     {
         return json_decode(file_get_contents($pathToFile), true);
     }
+
+    public function getSupportedFileTypes(): array
+    {
+        return [
+            'json',
+            'txt',
+        ];
+    }
 }

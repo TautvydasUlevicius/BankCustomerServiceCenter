@@ -9,4 +9,11 @@ class CsvParser implements FileParserInterface
     {
         return array_map('str_getcsv', file($pathToFile));
     }
+
+    public function getSupportedFileTypes(): array
+    {
+        return [
+            'csv',
+        ];
+    }
 }

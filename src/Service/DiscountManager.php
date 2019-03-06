@@ -9,14 +9,17 @@ use Evp\Component\Money\Money;
 class DiscountManager
 {
     private $dateChecker;
-    private $configuration;
+    private $mainCurrency;
+    private $withdrawalFreeAmount;
 
     public function __construct(
-        array $configuration,
-        DateChecker $dateChecker
+        string $mainCurrency,
+        DateChecker $dateChecker,
+        string $withdrawalFreeAmount
     ) {
         $this->dateChecker = $dateChecker;
-        $this->configuration = $configuration;
+        $this->mainCurrency = $mainCurrency;
+        $this->withdrawalFreeAmount = $withdrawalFreeAmount;
     }
 
     public function calculateDiscountForOperations(array $operationObjects): array
@@ -27,8 +30,8 @@ class DiscountManager
             $counter = 0;
             $operationNumber = 1;
             $discountAmount = new Money(
-                $this->configuration['withdrawal_free_amount'],
-                $this->configuration['main_currency']
+                $this->withdrawalFreeAmount,
+                $this->mainCurrency
             );
 
             while ($counter < $i) {
@@ -41,7 +44,7 @@ class DiscountManager
 
                     $originalCurrency = $operationObjects[$counter]->getMoney()->getCurrency();
                     $discountAmountLeft = $discountAmount->sub(
-                        $operationObjects[$counter]->getMoney()->setCurrency($this->configuration['main_currency'])
+                        $operationObjects[$counter]->getMoney()->setCurrency($this->mainCurrency)
                     );
                     $discountAmount->setAmount($discountAmountLeft->getAmount());
                     $operationObjects[$counter]->getMoney()->setCurrency($originalCurrency);

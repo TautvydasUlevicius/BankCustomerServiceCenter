@@ -44,7 +44,10 @@ class Operation
         return $this;
     }
 
-    public function getOperationId():int
+    /**
+     * @return int/null
+     */
+    public function getOperationId()
     {
         return $this->operationId;
     }
@@ -56,7 +59,10 @@ class Operation
         return $this;
     }
 
-    public function getDate(): string
+    /**
+     * @return string/null
+     */
+    public function getDate()
     {
         return $this->operationDate;
     }
@@ -68,7 +74,10 @@ class Operation
         return $this;
     }
 
-    public function getUserId(): string
+    /**
+     * @return string/null
+     */
+    public function getUserId()
     {
         return $this->userId;
     }
@@ -80,7 +89,10 @@ class Operation
         return $this;
     }
 
-    public function getUserType(): string
+    /**
+     * @return string/null
+     */
+    public function getUserType()
     {
         return $this->userType;
     }
@@ -92,7 +104,10 @@ class Operation
         return $this;
     }
 
-    public function getOperationType(): string
+    /**
+     * @return string/null
+     */
+    public function getOperationType()
     {
         return $this->operationType;
     }
@@ -107,7 +122,10 @@ class Operation
         return $this;
     }
 
-    public function getMoney(): Money
+    /**
+     * @return Money/null
+     */
+    public function getMoney()
     {
         return $this->money;
     }

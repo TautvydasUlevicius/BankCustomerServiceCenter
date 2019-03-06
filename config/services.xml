@@ -6,19 +6,16 @@
 
     <parameters>
         <parameter key="locale">en</parameter>
-
-        <parameter key="env.configuration" type="collection">
-            <parameter key="legal_people">%env(LEGAL_PEOPLE)%</parameter>
-            <parameter key="money_deposit">%env(MONEY_DEPOSIT)%</parameter>
-            <parameter key="main_currency">%env(MAIN_CURRENCY)%</parameter>
-            <parameter key="deposit_percent">%env(DEPOSIT_PERCENT)%</parameter>
-            <parameter key="withdrawal_percent">%env(WITHDRAWAL_PERCENT)%</parameter>
-            <parameter key="withdrawal_free_amount">%env(WITHDRAWAL_FREE_AMOUNT)%</parameter>
-            <parameter key="deposit_maximum_commission">%env(DEPOSIT_MAXIMUM_COMMISSION)%</parameter>
-            <parameter key="withdrawal_minimum_commission">%env(WITHDRAWAL_MINIMUM_COMMISSION)%</parameter>
-            <parameter key="withdrawal_amount_of_times_free">%env(WITHDRAWAL_AMOUNT_OF_TIMES_FREE)%</parameter>
+        <parameter key="currency_courses" type="collection">
+            <parameter key="EUR">%env(EUR)%</parameter>
+            <parameter key="JPY">%env(JPY)%</parameter>
+            <parameter key="USD">%env(USD)%</parameter>
         </parameter>
-
+        <parameter key="supported_currencies" type="collection">
+            <parameter key="EUR">EUR</parameter>
+            <parameter key="JPY">JPY</parameter>
+            <parameter key="USD">USD</parameter>
+        </parameter>
     </parameters>
 
     <services>
@@ -26,7 +23,7 @@
         <prototype namespace="App\" resource="../src/*" exclude="../src/{Entity,Migrations,Tests}" />
 
         <service id="App\Command\CreateOperationsCommand">
-            <argument>%env.configuration%</argument>
+            <argument>%env(MAIN_CURRENCY)%</argument>
             <argument type="service" id="App\Service\DateChecker" />
             <argument type="service" id="App\Service\CurrencyManager" />
             <argument type="service" id="App\Service\OperationManager" />
@@ -35,36 +32,54 @@
             <tag name="console.command" command="app:calculate-commissions" />
         </service>
 
-        <service id="App\Service\Validator" />
+        <service id="App\Service\Validation\FileValidator">
+            <argument type="service" id="App\DependencyInjection\FileParserChain" />
+        </service>
+
+        <service id="App\Service\Validation\CurrencyValidator">
+            <argument>%supported_currencies%</argument>
+        </service>
+
         <service id="App\Service\DateChecker" />
 
         <service id="App\DependencyInjection\FileParserChain" />
 
         <service id="App\Service\FileManager\CsvParser">
-            <tag name="app.file_parser" alias="csv" />
+            <tag name="app.file_parser" format="csv"/>
         </service>
 
         <service id="App\Service\FileManager\JsonParser">
-            <tag name="app.file_parser" alias="json" />
+            <tag name="app.file_parser" format="json"/>
         </service>
 
         <instanceof id="App\Service\FileManager\FileParserInterface" public="true" />
 
-        <service id="App\Service\CurrencyManager" />
+        <service id="App\Service\CurrencyManager">
+            <argument>%currency_courses%</argument>
+        </service>
 
         <service id="App\Service\DiscountManager">
-            <argument>%env.configuration%</argument>
+            <argument>%env(MAIN_CURRENCY)%</argument>
             <argument type="service" id="App\Service\DateChecker" />
+            <argument>%env(WITHDRAWAL_FREE_AMOUNT)%</argument>
         </service>
 
         <service id="App\Service\OperationManager" >
-            <argument type="service" id="App\Service\Validator" />
+            <argument type="service" id="App\Service\Validation\FileValidator" />
             <argument type="service" id="App\DependencyInjection\FileParserChain" />
+            <argument type="service" id="App\Service\Validation\CurrencyValidator" />
         </service>
 
         <service id="App\Service\CommissionManager">
-            <argument>%env.configuration%</argument>
+            <argument>%env(LEGAL_PEOPLE)%</argument>
+            <argument>%env(MONEY_DEPOSIT)%</argument>
+            <argument>%env(MAIN_CURRENCY)%</argument>
+            <argument>%env(DEPOSIT_PERCENT)%</argument>
+            <argument>%env(WITHDRAWAL_PERCENT)%</argument>
             <argument type="service" id="App\Service\DiscountManager" />
+            <argument>%env(DEPOSIT_MAXIMUM_COMMISSION)%</argument>
+            <argument>%env(WITHDRAWAL_MINIMUM_COMMISSION)%</argument>
+            <argument>%env(WITHDRAWAL_AMOUNT_OF_TIMES_FREE)%</argument>
         </service>
     </services>
 </container>

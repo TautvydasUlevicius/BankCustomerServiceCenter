@@ -17,14 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateOperationsCommand extends ContainerAwareCommand
 {
-    private $configuration;
     private $dateChecker;
+    private $mainCurrency;
     private $currencyManager;
     private $operationManager;
     private $commissionManager;
 
     public function __construct(
-        array $configuration,
+        string $mainCurrency,
         DateChecker $dateChecker,
         CurrencyManager $currencyManager,
         OperationManager $operationManager,
@@ -33,7 +33,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
         parent::__construct();
 
         $this->dateChecker = $dateChecker;
-        $this->configuration = $configuration;
+        $this->mainCurrency = $mainCurrency;
         $this->currencyManager = $currencyManager;
         $this->operationManager = $operationManager;
         $this->commissionManager = $commissionManager;
@@ -77,7 +77,7 @@ class CreateOperationsCommand extends ContainerAwareCommand
             $operationObject->getMoney()->setAmount(
                 $this->currencyManager->convert(
                     $operationObject->getMoney(),
-                    $this->configuration['main_currency']
+                    $this->mainCurrency
                 )->getAmount()
             );
         }

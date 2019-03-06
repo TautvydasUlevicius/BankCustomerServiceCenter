@@ -5,5 +5,7 @@ namespace App\Service\FileManager;
 
 interface FileParserInterface
 {
-    public function parseFile(string $pathToFile);
+    public function parseFile(string $pathToFile): array;
+
+    public function getSupportedFileTypes(): array;
 }
