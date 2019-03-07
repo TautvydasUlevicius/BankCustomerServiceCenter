@@ -18,8 +18,7 @@ class FileValidator
     {
         if ($this->checkIfFileExists($fileLocation) === false ||
         $this->validateTypes($fileLocation, $dataType) === false) {
-            print_r('Either the file was not found, or the file/data type is not supported');
-            die();
+            throw new \Exception('Either the file was not found, or the file/data type is not supported');
         }
     }
 
@@ -37,6 +36,7 @@ class FileValidator
         $supportedDataFileTypes = $this->fileParserChain->getSupportedDataFileTypes();
         $data = strtolower($dataType);
         $file = pathinfo($pathToFile, PATHINFO_EXTENSION);
+
 
         if (!isset($supportedDataFileTypes[$data])) {
             return false;

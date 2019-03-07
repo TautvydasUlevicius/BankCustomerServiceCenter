@@ -45,7 +45,7 @@ class Operation
     }
 
     /**
-     * @return int/null
+     * @return int|null
      */
     public function getOperationId()
     {
@@ -60,7 +60,7 @@ class Operation
     }
 
     /**
-     * @return string/null
+     * @return string|null
      */
     public function getDate()
     {
@@ -75,7 +75,7 @@ class Operation
     }
 
     /**
-     * @return string/null
+     * @return string|null
      */
     public function getUserId()
     {
@@ -90,7 +90,7 @@ class Operation
     }
 
     /**
-     * @return string/null
+     * @return string|null
      */
     public function getUserType()
     {
@@ -105,7 +105,7 @@ class Operation
     }
 
     /**
-     * @return string/null
+     * @return string|null
      */
     public function getOperationType()
     {
@@ -123,7 +123,7 @@ class Operation
     }
 
     /**
-     * @return Money/null
+     * @return Money|null
      */
     public function getMoney()
     {

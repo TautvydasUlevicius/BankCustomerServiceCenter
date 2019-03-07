@@ -8,18 +8,15 @@ use App\Service\FileManager\FileParserInterface;
 class FileParserChain
 {
     private $fileParsers;
-    private $supportedDataFileTypes;
 
     public function __construct()
     {
         $this->fileParsers = [];
-        $this->supportedDataFileTypes = [];
     }
 
     public function addFileParser(FileParserInterface $filerParser, $format)
     {
         $this->fileParsers[$format] = $filerParser;
-        $this->supportedDataFileTypes[$format] = $filerParser->getSupportedFileTypes();
     }
 
     public function getFileParser($format)
@@ -31,6 +28,12 @@ class FileParserChain
 
     public function getSupportedDataFileTypes(): array
     {
-        return $this->supportedDataFileTypes;
+        $supportedDataFileTypes = [];
+
+        foreach ($this->fileParsers as $key => $value) {
+            $supportedDataFileTypes[$key] = $this->fileParsers[$key]->getSupportedFileTypes();
+        }
+
+        return $supportedDataFileTypes;
     }
 }

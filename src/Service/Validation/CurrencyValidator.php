@@ -14,13 +14,12 @@ class CurrencyValidator
 
     public function checkIfCurrencyIsSupported(string $currency): bool
     {
-        foreach ($this->supportedCurrencies as $supportedCurrency) {
+        foreach (array_keys($this->supportedCurrencies) as $supportedCurrency) {
             if ($currency === $supportedCurrency) {
                 return true;
             }
         }
 
-        print_r('Unsupported currency provided');
-        die();
+        throw new \Exception('Unsupported Currency Provided');
     }
 }

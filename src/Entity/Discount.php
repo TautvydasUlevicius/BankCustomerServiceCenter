@@ -30,7 +30,7 @@ class Discount
     }
 
     /**
-     * @return int/null
+     * @return int|null
      */
     public function getOperationId()
     {
@@ -45,7 +45,7 @@ class Discount
     }
 
     /**
-     * @return int/null
+     * @return int|null
      */
     public function getOperationNumber()
     {
@@ -63,7 +63,7 @@ class Discount
     }
 
     /**
-     * @return Money/null
+     * @return Money|null
      */
     public function getMoney()
     {

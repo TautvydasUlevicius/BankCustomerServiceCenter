@@ -6,15 +6,10 @@
 
     <parameters>
         <parameter key="locale">en</parameter>
-        <parameter key="currency_courses" type="collection">
+        <parameter key="supported_currency" type="collection">
             <parameter key="EUR">%env(EUR)%</parameter>
             <parameter key="JPY">%env(JPY)%</parameter>
             <parameter key="USD">%env(USD)%</parameter>
-        </parameter>
-        <parameter key="supported_currencies" type="collection">
-            <parameter key="EUR">EUR</parameter>
-            <parameter key="JPY">JPY</parameter>
-            <parameter key="USD">USD</parameter>
         </parameter>
     </parameters>
 
@@ -37,7 +32,7 @@
         </service>
 
         <service id="App\Service\Validation\CurrencyValidator">
-            <argument>%supported_currencies%</argument>
+            <argument>%supported_currency%</argument>
         </service>
 
         <service id="App\Service\DateChecker" />
@@ -55,7 +50,7 @@
         <instanceof id="App\Service\FileManager\FileParserInterface" public="true" />
 
         <service id="App\Service\CurrencyManager">
-            <argument>%currency_courses%</argument>
+            <argument>%supported_currency%</argument>
         </service>
 
         <service id="App\Service\DiscountManager">

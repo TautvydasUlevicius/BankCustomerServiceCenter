@@ -67,10 +67,15 @@ class CreateOperationsCommand extends ContainerAwareCommand
     {
         $fileLocation = $input->getOptions();
         $dataType = $input->getArguments();
-        $operationObjects = $this->operationManager->createOperationsFromFile(
-            $fileLocation['location'],
-            $dataType['format']
-        );
+        try {
+            $operationObjects = $this->operationManager->createOperationsFromFile(
+                $fileLocation['location'],
+                $dataType['format']
+            );
+        } catch (\Exception $exception) {
+            $output->writeln($exception->getMessage());
+            return;
+        }
 
         /** @var Operation $operationObject */
         foreach ($operationObjects as $operationObject) {
